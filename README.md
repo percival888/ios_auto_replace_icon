@@ -1,5 +1,5 @@
 #### ios_auto_replace_icon
-第一个python脚本
+用于一键生成对应尺寸的icon，并替换到iOS工程项目中
 
 #### Python环境 3.8.3
 
