@@ -1,8 +1,6 @@
 # 项目路径（Assets.xcassets所在文件夹路径） 自行修改 
 target_assets_path = '/Users/shurui/Desktop/test/test/'
 
-source_image_path = '/Users/shurui/Desktop/AppStoreIcon.png'
-
 #AppIcon需要的iphone机型图片尺寸及倍率 元组第一位为尺寸，第二位为倍率
 iphone_image_size_info = [
     (20,2),

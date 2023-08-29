@@ -3,6 +3,7 @@ import config
 import sys
 import shutil
 import json
+import os
 from PIL import Image
 
 # 判断是否是png格式
@@ -53,17 +54,28 @@ def resize_and_save_image(input_path, output_path, target_size):
         return False
 
 
+# 获取项目icons存放路径
+targetAppIconAssetsXcassetsPath = config.target_assets_path + 'Assets.xcassets'
+if not os.path.exists(targetAppIconAssetsXcassetsPath):
+    targetAppIconAssetsXcassetsPath = config.target_assets_path + 'Images.xcassets'
+    if not os.path.exists(targetAppIconAssetsXcassetsPath):
+        print("error:查询xcassets文件夹路径失败")
+        sys.exit(1)
+targetAppIconAssetsPath = os.path.join(targetAppIconAssetsXcassetsPath, 'AppIcon.appiconset')
 
-if is_png_file(config.source_image_path) == False:
+# 获取源图片路径
+user_input_path = input("请输入源图片路径: ")
+source_image_path = user_input_path.strip('"\'').replace(" ", "")
+
+if is_png_file(source_image_path) == False:
     print("error:图片格式需为png")
     sys.exit(1)
 
 
-if check_image_size_1024(config.source_image_path) == False:
+if check_image_size_1024(source_image_path) == False:
     print("error:图片尺寸需要为1024*1024,请重新选择合适的图片资源")
     sys.exit(1)
 
-targetAppIconAssetsPath = config.target_assets_path + 'Assets.xcassets/AppIcon.appiconset/'
 newImagesJsonInfo = []
 
 # iphone图片处理
@@ -71,8 +83,8 @@ for imageSizeInfo in config.iphone_image_size_info:
     targetImageSize = imageSizeInfo[0] * imageSizeInfo[1]
     targetImageSuffix = ".png" if imageSizeInfo[1] == 1 else "@{0}x.png".format(imageSizeInfo[1])
     targetIconName = '{0}-iphone{1}'.format(imageSizeInfo[0],targetImageSuffix)
-    targetIconPath =  targetAppIconAssetsPath + targetIconName
-    if resize_and_save_image(config.source_image_path, targetIconPath, (targetImageSize,targetImageSize)) == False:
+    targetIconPath =  os.path.join(targetAppIconAssetsPath, targetIconName)
+    if resize_and_save_image(source_image_path, targetIconPath, (targetImageSize,targetImageSize)) == False:
         print("error:图片压缩处理失败")
         sys.exit(1)
     else:
@@ -88,8 +100,8 @@ for imageSizeInfo in config.ipad_image_size_info:
     targetImageSize = imageSizeInfo[0] * imageSizeInfo[1]
     targetImageSuffix = ".png" if imageSizeInfo[1] == 1 else "@{0}x.png".format(imageSizeInfo[1])
     targetIconName = '{0}-ipad{1}'.format(imageSizeInfo[0],targetImageSuffix)
-    targetIconPath =  targetAppIconAssetsPath + targetIconName
-    if resize_and_save_image(config.source_image_path, targetIconPath, (targetImageSize,targetImageSize)) == False:
+    targetIconPath = os.path.join(targetAppIconAssetsPath, targetIconName)
+    if resize_and_save_image(source_image_path, targetIconPath, (targetImageSize,targetImageSize)) == False:
         print("error:图片压缩处理失败")
         sys.exit(1)
     else:
@@ -101,7 +113,7 @@ for imageSizeInfo in config.ipad_image_size_info:
             })
 
 #AppStore图片处理
-shutil.copy(config.source_image_path, targetAppIconAssetsPath + 'AppStoreIcon.png')
+shutil.copy(source_image_path, os.path.join(targetAppIconAssetsPath, 'AppStoreIcon.png'))
 newImagesJsonInfo.append({
             "size" : '1024x1024',
             "idiom" : "ios-marketing",
@@ -110,7 +122,7 @@ newImagesJsonInfo.append({
             })
 
 #json配置文件修改
-targetAppIconAssetsJsonPath = targetAppIconAssetsPath + "Contents.json"
+targetAppIconAssetsJsonPath = os.path.join(targetAppIconAssetsPath, "Contents.json")
 with open(targetAppIconAssetsJsonPath, "r+") as file:
     contents = file.read()
 jsonData = json.loads(contents)
